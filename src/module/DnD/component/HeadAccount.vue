@@ -20,10 +20,18 @@ const store = useDnDStore()
 
 const uuid = store.session.user.id
 
+import { useKeyboardEventHandle } from '@/lib/useGlobalEventHandle'
 let account = ref(false)
 const setAccount = () => {
   account.value = !account.value
 }
+const handleEscape = () => {
+  account.value = false
+}
+useKeyboardEventHandle({
+  Escape: handleEscape,
+  // 'ctrl:e': () => console.log('ctrl:e'),
+})
 
 let handle = ref('')
 let firstname = ref('')
