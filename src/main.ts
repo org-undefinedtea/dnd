@@ -1,19 +1,18 @@
-import './assets/main.css'
-import './assets/vendor/main.css'
+import './asset/vendor/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
 import { VueQueryPlugin } from '@tanstack/vue-query'
 
-import App from './App.vue'
-import router from './router'
+import DnD from './DnD.vue'
+import route from './route'
 
-const app = createApp(App)
+const dnd = createApp(DnD)
 
-app.use(createPinia())
-app.use(router)
+dnd.use(createPinia())
+dnd.use(route)
 
-app.use(VueQueryPlugin)
+dnd.use(VueQueryPlugin)
 
-app.mount('#app')
+dnd.mount('#dnd')
