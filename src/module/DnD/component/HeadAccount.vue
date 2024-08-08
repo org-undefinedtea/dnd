@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, inject, onMounted, computed } from 'vue'
 import api, { fetchAccountData, fetchAccountStorage } from '@/lib/api'
 
 import { useRouter } from 'vue-router'
@@ -15,21 +15,30 @@ const end = async () => {
   }
 }
 
+import { useMainStore } from '@/store'
+const store_ = useMainStore()
+
 import { useDnDStore } from '@/module/DnD/store'
 const store = useDnDStore()
 
 const uuid = store.session.user.id
 
 import { useKeyboardEventHandle } from '@/lib/useGlobalEventHandle'
-let account = ref(false)
+
+import { v1 as uuid1 } from 'uuid'
+const accountUUID = uuid1()
+
+let account = computed(() => {
+  const state = store_.application.activePopoverMap[accountUUID]
+  return state !== undefined ? state : false
+})
 const setAccount = () => {
-  account.value = !account.value
+  store_.togglePopover(accountUUID)
 }
-const handleEscape = () => {
-  account.value = false
-}
+const noClose = ref<HTMLElement | null>(null)
+const noCloseRef = inject<Ref<HTMLElement | null>>('noClose')
 useKeyboardEventHandle({
-  Escape: handleEscape,
+  Escape: setAccount,
   // 'ctrl:e': () => console.log('ctrl:e'),
 })
 
@@ -75,6 +84,9 @@ const getAccountStorage = async () => {
 }
 
 onMounted(async () => {
+  if (noClose.value && noCloseRef) {
+    noCloseRef.value = noClose.value
+  }
   await getAccount()
   await getAccountStorage()
 })
@@ -87,7 +99,8 @@ onMounted(async () => {
       class="-m-1.5 flex items-center p-1.5"
       aria-expanded="false"
       aria-haspopup="true"
-      @click.prevent="setAccount()"
+      @click.prevent="setAccount"
+      ref="noClose"
     >
       <span class="sr-only">Account Navigation</span>
       <img class="h-8 w-8 rounded-full bg-slate-50" :src="src" alt="profile image" />
